@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/ungerik/go3d/float64/vec2"
+	"github.com/flywave/go3d/float64/vec2"
 )
 
 // T holds the data to define a quadratic bezier spline.

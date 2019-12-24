@@ -4,8 +4,8 @@ package mat2
 import (
 	"fmt"
 
-	"github.com/ungerik/go3d/generic"
-	"github.com/ungerik/go3d/vec2"
+	"github.com/flywave/go3d/generic"
+	"github.com/flywave/go3d/vec2"
 )
 
 var (
