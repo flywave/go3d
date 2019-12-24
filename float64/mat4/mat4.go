@@ -565,3 +565,48 @@ func (mat *T) Transpose3x3() *T {
 	swap(&mat[2][1], &mat[1][2])
 	return mat
 }
+
+// Adjugated returns an adjugated copy of the matrix.
+func (mat *T) Adjugated() T {
+	result := *mat
+	result.Adjugate()
+	return result
+}
+
+// returns a 3x3 matrix without the i-th column and j-th row
+func (mat *T) maskedBlock(blockI, blockJ int) *mat3.T {
+	var m mat3.T
+	m_i := 0
+	for i := 0; i < 4; i++ {
+		if i == blockI {
+			continue
+		}
+		m_j := 0
+		for j := 0; j < 4; j++ {
+			if j == blockJ {
+				continue
+			}
+			m[m_i][m_j] = mat[i][j]
+			m_j++
+		}
+		m_i++
+	}
+	return &m
+}
+
+// Inverts the given matrix.
+// Does not check if matrix is singular and may lead to strange results!
+func (mat *T) Invert() *T {
+	initialDet := mat.Determinant()
+	mat.Adjugate()
+	mat.Mul(1 / initialDet)
+	return mat
+}
+
+// Inverted returns an inverted copy of the matrix.
+// Does not check if matrix is singular and may lead to strange results!
+func (mat *T) Inverted() T {
+	result := *mat
+	result.Invert()
+	return result
+}
