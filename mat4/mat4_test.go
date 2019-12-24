@@ -1,11 +1,12 @@
 package mat4
 
 import (
+	"testing"
+
 	math "github.com/barnex/fmath"
 	"github.com/flywave/go3d/mat3"
 	"github.com/flywave/go3d/vec3"
 	"github.com/flywave/go3d/vec4"
-	"testing"
 )
 
 const EPSILON = 0.0001

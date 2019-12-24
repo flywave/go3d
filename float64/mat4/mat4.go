@@ -105,6 +105,23 @@ func (mat *T) Scaled(f float64) T {
 	return *r.Scale(f)
 }
 
+// Mul multiplies every element by f and returns mat.
+func (mat *T) Mul(f float64) *T {
+	for i, col := range mat {
+		for j := range col {
+			mat[i][j] *= f
+		}
+	}
+	return mat
+}
+
+// Muled returns a copy of the matrix with every element multiplied by f.
+func (mat *T) Muled(f float64) T {
+	result := *mat
+	result.Mul(f)
+	return result
+}
+
 // Trace returns the trace value for the matrix.
 func (mat *T) Trace() float64 {
 	return mat[0][0] + mat[1][1] + mat[2][2] + mat[3][3]
@@ -541,6 +558,39 @@ func (mat *T) Determinant3x3() float64 {
 		mat[0][0]*mat[2][1]*mat[1][2]
 }
 
+func (mat *T) Determinant() float64 {
+	s1 := mat[0][0]
+	det1 := mat[1][1]*mat[2][2]*mat[3][3] +
+		mat[2][1]*mat[3][2]*mat[1][3] +
+		mat[3][1]*mat[1][2]*mat[2][3] -
+		mat[3][1]*mat[2][2]*mat[1][3] -
+		mat[2][1]*mat[1][2]*mat[3][3] -
+		mat[1][1]*mat[3][2]*mat[2][3]
+
+	s2 := mat[0][1]
+	det2 := mat[1][0]*mat[2][2]*mat[3][3] +
+		mat[2][0]*mat[3][2]*mat[1][3] +
+		mat[3][0]*mat[1][2]*mat[2][3] -
+		mat[3][0]*mat[2][2]*mat[1][3] -
+		mat[2][0]*mat[1][2]*mat[3][3] -
+		mat[1][0]*mat[3][2]*mat[2][3]
+	s3 := mat[0][2]
+	det3 := mat[1][0]*mat[2][1]*mat[3][3] +
+		mat[2][0]*mat[3][1]*mat[1][3] +
+		mat[3][0]*mat[1][1]*mat[2][3] -
+		mat[3][0]*mat[2][1]*mat[1][3] -
+		mat[2][0]*mat[1][1]*mat[3][3] -
+		mat[1][0]*mat[3][1]*mat[2][3]
+	s4 := mat[0][3]
+	det4 := mat[1][0]*mat[2][1]*mat[3][2] +
+		mat[2][0]*mat[3][1]*mat[1][2] +
+		mat[3][0]*mat[1][1]*mat[2][2] -
+		mat[3][0]*mat[2][1]*mat[1][2] -
+		mat[2][0]*mat[1][1]*mat[3][2] -
+		mat[1][0]*mat[3][1]*mat[2][2]
+	return s1*det1 - s2*det2 + s3*det3 - s4*det4
+}
+
 // IsReflective returns true if the matrix can be reflected by a plane.
 func (mat *T) IsReflective() bool {
 	return mat.Determinant3x3() < 0
@@ -564,6 +614,19 @@ func (mat *T) Transpose3x3() *T {
 	swap(&mat[2][0], &mat[0][2])
 	swap(&mat[2][1], &mat[1][2])
 	return mat
+}
+
+// Adjugate computes the adjugate of this matrix and returns mat
+func (mat *T) Adjugate() *T {
+	matOrig := *mat
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			// - 1 for odd i+j, 1 for even i+j
+			sign := float64(((i+j)%2)*-2 + 1)
+			mat[i][j] = matOrig.maskedBlock(i, j).Determinant() * sign
+		}
+	}
+	return mat.Transpose()
 }
 
 // Adjugated returns an adjugated copy of the matrix.
