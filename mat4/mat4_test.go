@@ -1,9 +1,13 @@
 package mat4
 
 import (
+	"fmt"
 	"testing"
 
 	math "github.com/barnex/fmath"
+	"github.com/flywave/go3d/float64/mat4"
+	"github.com/flywave/go3d/float64/quaternion"
+
 	"github.com/flywave/go3d/mat3"
 	"github.com/flywave/go3d/vec3"
 	"github.com/flywave/go3d/vec4"
@@ -238,4 +242,17 @@ func BenchmarkMulAddVec4_PassByValue(b *testing.B) {
 		v = Vec4Add_PassByValue(v, v1)
 		v = Vec4Add_PassByValue(v, v1)
 	}
+}
+
+func TestDecompose(t *testing.T) {
+	mat := &mat4.Ident
+	q := quaternion.FromEulerAngles(0, math.Pi/4, 0)
+	mat.AssignQuaternion(&q)
+	// mat.Scale(0.3)
+
+	v1, v2, v3, v4 := mat4.Decompose(mat)
+	fmt.Printf("%f,%f,%f \n", v1[0], v1[1], v1[2])
+	fmt.Printf("%f,%f,%f \n", v2[0], v2[1], v2[2])
+	fmt.Printf("%f,%f,%f \n", v3[0], v3[1], v3[2])
+	fmt.Printf("%f,%f,%f \n", v4[0], v4[1], v4[2])
 }

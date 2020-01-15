@@ -92,7 +92,7 @@ func (quat *T) AxisAngle() (axis vec3.T, angle float32) {
 	axis[1] = quat[1] * ooSin
 	axis[2] = quat[2] * ooSin
 
-	return axis, angle
+	return axis, angle * 2
 }
 
 // Norm returns the norm value of the quaternion.

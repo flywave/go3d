@@ -673,3 +673,128 @@ func (mat *T) Inverted() T {
 	result.Invert()
 	return result
 }
+
+func v3Combine(a *vec3.T, b *vec3.T, result *vec3.T, ascl float64, bscl float64) {
+
+	result[0] = (ascl * a[0]) + (bscl * b[0])
+	result[1] = (ascl * a[1]) + (bscl * b[1])
+	result[2] = (ascl * a[2]) + (bscl * b[2])
+}
+
+func Decompose(mat *T) (*vec3.T, *vec3.T, *vec3.T, *vec3.T) {
+	scale := &vec3.T{}
+	she := &vec3.T{}
+	translate := &vec3.T{}
+	rot := &vec3.T{}
+	quat := &quaternion.T{}
+
+	localMatrix := *mat
+
+	translate[0] = localMatrix[0][3]
+	localMatrix[0][3] = 0
+	translate[1] = localMatrix[1][3]
+	localMatrix[0][3] = 0
+	translate[2] = localMatrix[2][3]
+	localMatrix[0][3] = 0
+
+	// Vector4 type and functions need to be added to the common set.
+	row := [3]vec3.T{vec3.T{}, vec3.T{}, vec3.T{}}
+	pdum3 := vec3.T{}
+
+	// Now get scale and shear.
+	row[0][0] = localMatrix[0][0]
+	row[0][1] = localMatrix[0][1]
+	row[0][2] = localMatrix[0][2]
+
+	row[1][0] = localMatrix[1][0]
+	row[1][1] = localMatrix[1][1]
+	row[1][2] = localMatrix[1][2]
+
+	row[2][0] = localMatrix[2][0]
+	row[2][1] = localMatrix[2][1]
+	row[2][2] = localMatrix[2][2]
+	// Compute X scale factor and normalize first row.
+	scale[0] = row[0].Length()
+	row[0].Normalize()
+
+	// Compute XY shear factor and make 2nd row orthogonal to 1st.
+	she[0] = vec3.Dot(&row[0], &row[1])
+	v3Combine(&row[1], &row[0], &row[1], 1.0, -she[0])
+	// Now, compute Y scale and normalize 2nd row.
+	scale[1] = row[1].Length()
+	row[1].Normalize()
+	she[0] /= scale[1]
+
+	// Compute XZ and YZ shears, orthogonalize 3rd row.
+	she[1] = vec3.Dot(&row[0], &row[2])
+	v3Combine(&row[2], &row[0], &row[2], 1.0, -she[1])
+
+	r13 := vec3.Mul(&row[1], &row[2])
+	she[2] = vec3.Dot(&r13, &r13)
+	v3Combine(&row[2], &row[1], &row[2], 1.0, -she[2])
+
+	// Next, get Z scale and normalize 3rd row.
+	scale[2] = row[2].Length()
+	row[2].Normalize()
+	she[1] /= scale[2]
+	she[2] /= scale[2]
+
+	// At this point, the matrix (in rows[]) is orthonormal.
+	// Check for a coordinate system flip.  If the determinant
+	// is -1, then negate the matrix and the scaling factors.
+	pdum3 = vec3.Cross(&row[1], &row[2])
+	if vec3.Dot(&row[0], &pdum3) < 0 {
+		for i := 0; i < 3; i++ {
+			scale[0] *= -1
+			row[i][0] *= -1
+			row[i][1] *= -1
+			row[i][2] *= -1
+		}
+	}
+
+	rot[1] = math.Atan2(row[2][0], math.Sqrt(math.Pow(row[2][1], 2)+math.Pow(row[2][2], 2)))
+	if math.Cos(rot[1]) != 0 {
+		rot[0] = math.Atan2(row[2][1], row[2][2])
+		rot[2] = math.Atan2(row[0][1], row[0][0])
+	} else {
+		rot[0] = math.Atan2(-row[2][0], row[1][1])
+		rot[2] = 0
+	}
+
+	var s, t, x, y, z, w float64
+
+	t = row[0][0] + row[1][1] + row[2][2] + 1.0
+
+	if t > 1e-4 {
+		s = 0.5 / math.Sqrt(t)
+		w = 0.25 / s
+		x = (row[2][1] - row[1][2]) * s
+		y = (row[0][2] - row[2][0]) * s
+		z = (row[1][0] - row[0][1]) * s
+	} else if row[0][0] > row[1][1] && row[0][0] > row[2][2] {
+		s = math.Sqrt(1.0+row[0][0]-row[1][1]-row[2][2]) * 2.0 // S=4*qx
+		x = 0.25 * s
+		y = (row[0][1] + row[1][0]) / s
+		z = (row[0][2] + row[2][0]) / s
+		w = (row[2][1] - row[1][2]) / s
+	} else if row[1][1] > row[2][2] {
+		s = math.Sqrt(1.0+row[1][1]-row[0][0]-row[2][2]) * 2.0 // S=4*qy
+		x = (row[0][1] + row[1][0]) / s
+		y = 0.25 * s
+		z = (row[1][2] + row[2][1]) / s
+		w = (row[0][2] - row[2][0]) / s
+	} else {
+		s = math.Sqrt(1.0+row[2][2]-row[0][0]-row[1][1]) * 2.0 // S=4*qz
+		x = (row[0][2] + row[2][0]) / s
+		y = (row[1][2] + row[2][1]) / s
+		z = 0.25 * s
+		w = (row[1][0] - row[0][1]) / s
+	}
+
+	quat[0] = x
+	quat[1] = y
+	quat[2] = z
+	quat[3] = w
+
+	return rot, translate, scale, she
+}
