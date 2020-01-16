@@ -43,7 +43,7 @@ func (box *Box) Diagonal() T {
 	return Sub(&box.Max, &box.Min)
 }
 
-// Intersects returns true if this and the given box intersect. 
+// Intersects returns true if this and the given box intersect.
 // For an explanation of the algorithm, see
 // http://rbrundritt.wordpress.com/2009/10/03/determining-if-two-bounding-boxes-overlap/
 func (box *Box) Intersects(other *Box) bool {
@@ -62,6 +62,11 @@ func (box *Box) Intersects(other *Box) bool {
 func (box *Box) Join(other *Box) {
 	box.Min = Min(&box.Min, &other.Min)
 	box.Max = Max(&box.Max, &other.Max)
+}
+
+func (box *Box) Extend(other *T) {
+	box.Min = Min(&box.Min, other)
+	box.Max = Max(&box.Max, other)
 }
 
 // Joined returns the minimal box containing both a and b.

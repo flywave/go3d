@@ -318,3 +318,19 @@ func (vec *T) Clamped01() T {
 	result.Clamp01()
 	return result
 }
+
+func Rotated(vec *T, axis *T, rad float64) *T {
+	sin_val := math.Sin(rad)
+	cos_val := math.Cos(rad)
+
+	crs := Cross(vec, axis)
+	crs.Scale(sin_val)
+
+	scl := vec.Scaled(cos_val)
+	dt := Dot(vec, axis) * (1 - cos_val)
+	dv := axis.Scaled(dt)
+
+	crs.Add(&scl)
+	crs.Add(&dv)
+	return &crs
+}

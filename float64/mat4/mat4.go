@@ -690,12 +690,12 @@ func Decompose(mat *T) (*vec3.T, *vec3.T, *vec3.T, *vec3.T) {
 
 	localMatrix := *mat
 
-	translate[0] = localMatrix[0][3]
-	localMatrix[0][3] = 0
-	translate[1] = localMatrix[1][3]
-	localMatrix[0][3] = 0
-	translate[2] = localMatrix[2][3]
-	localMatrix[0][3] = 0
+	translate[0] = localMatrix[3][0]
+	localMatrix[3][0] = 0
+	translate[1] = localMatrix[3][1]
+	localMatrix[3][1] = 0
+	translate[2] = localMatrix[3][2]
+	localMatrix[3][2] = 0
 
 	// Vector4 type and functions need to be added to the common set.
 	row := [3]vec3.T{vec3.T{}, vec3.T{}, vec3.T{}}
@@ -703,15 +703,15 @@ func Decompose(mat *T) (*vec3.T, *vec3.T, *vec3.T, *vec3.T) {
 
 	// Now get scale and shear.
 	row[0][0] = localMatrix[0][0]
-	row[0][1] = localMatrix[0][1]
-	row[0][2] = localMatrix[0][2]
+	row[0][1] = localMatrix[1][0]
+	row[0][2] = localMatrix[2][0]
 
-	row[1][0] = localMatrix[1][0]
+	row[1][0] = localMatrix[0][1]
 	row[1][1] = localMatrix[1][1]
-	row[1][2] = localMatrix[1][2]
+	row[1][2] = localMatrix[2][1]
 
-	row[2][0] = localMatrix[2][0]
-	row[2][1] = localMatrix[2][1]
+	row[2][0] = localMatrix[0][2]
+	row[2][1] = localMatrix[1][2]
 	row[2][2] = localMatrix[2][2]
 	// Compute X scale factor and normalize first row.
 	scale[0] = row[0].Length()
@@ -729,8 +729,7 @@ func Decompose(mat *T) (*vec3.T, *vec3.T, *vec3.T, *vec3.T) {
 	she[1] = vec3.Dot(&row[0], &row[2])
 	v3Combine(&row[2], &row[0], &row[2], 1.0, -she[1])
 
-	r13 := vec3.Mul(&row[1], &row[2])
-	she[2] = vec3.Dot(&r13, &r13)
+	she[2] = vec3.Dot(&row[1], &row[2])
 	v3Combine(&row[2], &row[1], &row[2], 1.0, -she[2])
 
 	// Next, get Z scale and normalize 3rd row.
@@ -752,7 +751,7 @@ func Decompose(mat *T) (*vec3.T, *vec3.T, *vec3.T, *vec3.T) {
 		}
 	}
 
-	rot[1] = math.Atan2(row[2][0], math.Sqrt(math.Pow(row[2][1], 2)+math.Pow(row[2][2], 2)))
+	rot[1] = math.Asin(row[0][2])
 	if math.Cos(rot[1]) != 0 {
 		rot[0] = math.Atan2(row[2][1], row[2][2])
 		rot[2] = math.Atan2(row[0][1], row[0][0])
