@@ -13,6 +13,7 @@ type Box struct {
 var (
 	// MaxBox holds a box that contains the entire R3 space that can be represented as vec3
 	MaxBox = Box{MinVal, MaxVal}
+	MinBox = Box{MaxVal, MinVal}
 )
 
 // ParseBox parses a Box from a string. See also String()
