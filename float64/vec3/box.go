@@ -16,6 +16,10 @@ var (
 	MinBox = Box{MaxVal, MinVal}
 )
 
+func FromSlice(s []float64) (r Box, err error) {
+	return Box{Min: T{s[0], s[1], s[2]}, Max:: T{s[3], s[4], s[5]}}, nil
+}
+
 // ParseBox parses a Box from a string. See also String()
 func ParseBox(s string) (r Box, err error) {
 	_, err = fmt.Sscan(s, &r.Min[0], &r.Min[1], &r.Min[2], &r.Max[0], &r.Max[1], &r.Max[2])
