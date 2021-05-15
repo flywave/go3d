@@ -22,9 +22,10 @@ func ParseBox(s string) (r Box, err error) {
 	return r, err
 }
 
-func FromSlice(s []float32) (r Box, err error) {
-	return Box{Min: T{s[0], s[1], s[2]}, Max:: T{s[3], s[4], s[5]}}, nil
+func FromSlice(s []float32) *Box {
+	return &Box{Min: T{s[0], s[1], s[2]}, Max: T{s[3], s[4], s[5]}}
 }
+
 // String formats Box as string. See also ParseBox().
 func (box *Box) String() string {
 	return box.Min.String() + " " + box.Max.String()
