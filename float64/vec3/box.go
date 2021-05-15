@@ -50,6 +50,12 @@ func (box *Box) ContainsPoint(p *T) bool {
 		p[2] >= box.Min[2] && p[2] <= box.Max[2]
 }
 
+func (box *Box) Contains(t *Box) bool {
+	return t.Min[0] >= box.Min[0] && t.Max[0] <= box.Max[0] &&
+		t.Min[1] >= box.Min[1] && t.Max[1] <= box.Max[1] &&
+		t.Min[2] >= box.Min[2] && t.Max[2] <= box.Max[2]
+}
+
 func (box *Box) Center() T {
 	c := Add(&box.Min, &box.Max)
 	c.Scale(0.5)
