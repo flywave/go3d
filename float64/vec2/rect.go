@@ -33,8 +33,8 @@ func (rect *Rect) Height() float64 {
 }
 
 func (rect *Rect) Size() float64 {
-	width := b.Width()
-	height := b.Height()
+	width := rect.Width()
+	height := rect.Height()
 	return math.Max(width, height)
 }
 

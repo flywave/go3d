@@ -26,9 +26,9 @@ func (rect *Rect) Height() float32 {
 }
 
 func (rect *Rect) Size() float32 {
-	width := b.Width()
-	height := b.Height()
-	return math.Max(width, height)
+	width := rect.Width()
+	height := rect.Height()
+	return float32(math.Max(float64(width), float64(height)))
 }
 
 // Slice returns the elements of the vector as slice.
