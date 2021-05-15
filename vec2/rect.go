@@ -16,6 +16,18 @@ func ParseRect(s string) (r Rect, err error) {
 	return r, err
 }
 
+// Slice returns the elements of the vector as slice.
+func (rect *Rect) Slice() []float32 {
+	return rect.Array()[:]
+}
+
+func (rect *Rect) Array() *[4]float32 {
+	return &[...]float32{
+		rect.Min[0], rect.Min[1],
+		rect.Max[0], rect.Max[1],
+	}
+}
+
 // String formats Rect as string. See also ParseRect().
 func (rect *Rect) String() string {
 	return rect.Min.String() + " " + rect.Max.String()
