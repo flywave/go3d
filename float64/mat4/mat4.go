@@ -284,21 +284,51 @@ func (mat *T) ScaleVec3(s *vec3.T) *T {
 	return mat
 }
 
-// Quaternion extracts a quaternion from the rotation part of the matrix.
 func (mat *T) Quaternion() quaternion.T {
-	tr := mat.Trace()
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+	// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+	m11, m12, m13 := mat[0][0], mat[1][0], mat[2][0]
+	m21, m22, m23 := mat[0][1], mat[1][1], mat[2][1]
+	m31, m32, m33 := mat[0][2], mat[1][2], mat[2][2]
 
-	s := math.Sqrt(tr + 1)
-	w := s * 0.5
-	s = 0.5 / s
+	trace := m11 + m22 + m33
+	var s, _w, _x, _y, _z float32
 
-	q := quaternion.T{
-		(mat[1][2] - mat[2][1]) * s,
-		(mat[2][0] - mat[0][2]) * s,
-		(mat[0][1] - mat[1][0]) * s,
-		w,
+	if trace > 0 {
+		s = 0.5 / math.Sqrt(trace+1.0)
+
+		_w = 0.25 / s
+		_x = (m32 - m23) * s
+		_y = (m13 - m31) * s
+		_z = (m21 - m12) * s
+	} else if m11 > m22 && m11 > m33 {
+		s = 2.0 * math.Sqrt(1.0+m11-m22-m33)
+
+		_w = (m32 - m23) / s
+		_x = 0.25 * s
+		_y = (m12 + m21) / s
+		_z = (m13 + m31) / s
+	} else if m22 > m33 {
+		s = 2.0 * math.Sqrt(1.0+m22-m11-m33)
+
+		_w = (m13 - m31) / s
+		_x = (m12 + m21) / s
+		_y = 0.25 * s
+		_z = (m23 + m32) / s
+	} else {
+		s = 2.0 * math.Sqrt(1.0+m33-m11-m22)
+
+		_w = (m21 - m12) / s
+		_x = (m13 + m31) / s
+		_y = (m23 + m32) / s
+		_z = 0.25 * s
 	}
-	return q.Normalized()
+	return quaternion.T{
+		_x,
+		_y,
+		_z,
+		_w,
+	}
 }
 
 // AssignQuaternion assigns a quaternion to the rotations part of the matrix and sets the other elements to their ident value.
@@ -681,119 +711,30 @@ func v3Combine(a *vec3.T, b *vec3.T, result *vec3.T, ascl float64, bscl float64)
 	result[2] = (ascl * a[2]) + (bscl * b[2])
 }
 
-func Decompose(mat *T) (*vec3.T, *vec3.T, *vec3.T, *vec3.T) {
-	scale := &vec3.T{}
-	she := &vec3.T{}
-	translate := &vec3.T{}
-	rot := &vec3.T{}
-	quat := &quaternion.T{}
+func Decompose(mat *T) (*vec3.T, *quaternion.T, *vec3.T) {
+	sx := (&vec3.T{mat[0][0], mat[0][1], mat[0][2]}).Length()
+	sy := (&vec3.T{mat[1][0], mat[1][1], mat[1][2]}).Length()
+	sz := (&vec3.T{mat[2][0], mat[2][1], mat[2][2]}).Length()
 
-	localMatrix := *mat
-
-	translate[0] = localMatrix[3][0]
-	localMatrix[3][0] = 0
-	translate[1] = localMatrix[3][1]
-	localMatrix[3][1] = 0
-	translate[2] = localMatrix[3][2]
-	localMatrix[3][2] = 0
-
-	// Vector4 type and functions need to be added to the common set.
-	row := [3]vec3.T{vec3.T{}, vec3.T{}, vec3.T{}}
-	pdum3 := vec3.T{}
-
-	// Now get scale and shear.
-	row[0][0] = localMatrix[0][0]
-	row[0][1] = localMatrix[1][0]
-	row[0][2] = localMatrix[2][0]
-
-	row[1][0] = localMatrix[0][1]
-	row[1][1] = localMatrix[1][1]
-	row[1][2] = localMatrix[2][1]
-
-	row[2][0] = localMatrix[0][2]
-	row[2][1] = localMatrix[1][2]
-	row[2][2] = localMatrix[2][2]
-	// Compute X scale factor and normalize first row.
-	scale[0] = row[0].Length()
-	row[0].Normalize()
-
-	// Compute XY shear factor and make 2nd row orthogonal to 1st.
-	she[0] = vec3.Dot(&row[0], &row[1])
-	v3Combine(&row[1], &row[0], &row[1], 1.0, -she[0])
-	// Now, compute Y scale and normalize 2nd row.
-	scale[1] = row[1].Length()
-	row[1].Normalize()
-	she[0] /= scale[1]
-
-	// Compute XZ and YZ shears, orthogonalize 3rd row.
-	she[1] = vec3.Dot(&row[0], &row[2])
-	v3Combine(&row[2], &row[0], &row[2], 1.0, -she[1])
-
-	she[2] = vec3.Dot(&row[1], &row[2])
-	v3Combine(&row[2], &row[1], &row[2], 1.0, -she[2])
-
-	// Next, get Z scale and normalize 3rd row.
-	scale[2] = row[2].Length()
-	row[2].Normalize()
-	she[1] /= scale[2]
-	she[2] /= scale[2]
-
-	// At this point, the matrix (in rows[]) is orthonormal.
-	// Check for a coordinate system flip.  If the determinant
-	// is -1, then negate the matrix and the scaling factors.
-	pdum3 = vec3.Cross(&row[1], &row[2])
-	if vec3.Dot(&row[0], &pdum3) < 0 {
-		for i := 0; i < 3; i++ {
-			scale[0] *= -1
-			row[i][0] *= -1
-			row[i][1] *= -1
-			row[i][2] *= -1
-		}
+	// if determine is negative, we need to invert one scale
+	det := mat.Determinant()
+	if det < 0 {
+		sx = -sx
 	}
 
-	rot[1] = math.Asin(row[0][2])
-	if math.Cos(rot[1]) != 0 {
-		rot[0] = math.Atan2(row[2][1], row[2][2])
-		rot[2] = math.Atan2(row[0][1], row[0][0])
-	} else {
-		rot[0] = math.Atan2(-row[2][0], row[1][1])
-		rot[2] = 0
+	position := vec3.T{mat[3][0], mat[3][1], mat[3][2]}
+
+	// scale the rotation part
+	invSX, invSY, invSZ := 1.0/sx, 1.0/sy, 1.0/sz
+	matrix := T{
+		vec4.T{mat[0][0] * invSX, mat[0][1] * invSX, mat[0][2] * invSX, 0},
+		vec4.T{mat[1][0] * invSY, mat[1][1] * invSY, mat[1][2] * invSY, 0},
+		vec4.T{mat[2][0] * invSZ, mat[2][1] * invSZ, mat[2][2] * invSZ, 0},
+		vec4.T{0, 0, 0, 1},
 	}
+	quat := matrix.Quaternion()
 
-	var s, t, x, y, z, w float64
+	scale := vec3.T{sx, sy, sz}
 
-	t = row[0][0] + row[1][1] + row[2][2] + 1.0
-
-	if t > 1e-4 {
-		s = 0.5 / math.Sqrt(t)
-		w = 0.25 / s
-		x = (row[2][1] - row[1][2]) * s
-		y = (row[0][2] - row[2][0]) * s
-		z = (row[1][0] - row[0][1]) * s
-	} else if row[0][0] > row[1][1] && row[0][0] > row[2][2] {
-		s = math.Sqrt(1.0+row[0][0]-row[1][1]-row[2][2]) * 2.0 // S=4*qx
-		x = 0.25 * s
-		y = (row[0][1] + row[1][0]) / s
-		z = (row[0][2] + row[2][0]) / s
-		w = (row[2][1] - row[1][2]) / s
-	} else if row[1][1] > row[2][2] {
-		s = math.Sqrt(1.0+row[1][1]-row[0][0]-row[2][2]) * 2.0 // S=4*qy
-		x = (row[0][1] + row[1][0]) / s
-		y = 0.25 * s
-		z = (row[1][2] + row[2][1]) / s
-		w = (row[0][2] - row[2][0]) / s
-	} else {
-		s = math.Sqrt(1.0+row[2][2]-row[0][0]-row[1][1]) * 2.0 // S=4*qz
-		x = (row[0][2] + row[2][0]) / s
-		y = (row[1][2] + row[2][1]) / s
-		z = 0.25 * s
-		w = (row[1][0] - row[0][1]) / s
-	}
-
-	quat[0] = x
-	quat[1] = y
-	quat[2] = z
-	quat[3] = w
-
-	return rot, translate, scale, she
+	return &position, &quat, &scale
 }
