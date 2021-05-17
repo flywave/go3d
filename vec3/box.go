@@ -22,9 +22,25 @@ func ParseBox(s string) (r Box, err error) {
 	return r, err
 }
 
+func FromSlice(s []float32) *Box {
+	return &Box{Min: T{s[0], s[1], s[2]}, Max: T{s[3], s[4], s[5]}}
+}
+
 // String formats Box as string. See also ParseBox().
 func (box *Box) String() string {
 	return box.Min.String() + " " + box.Max.String()
+}
+
+// Slice returns the elements of the vector as slice.
+func (box *Box) Slice() []float32 {
+	return box.Array()[:]
+}
+
+func (box *Box) Array() *[6]float32 {
+	return &[...]float32{
+		box.Min[0], box.Min[1], box.Min[2],
+		box.Max[0], box.Max[1], box.Max[2],
+	}
 }
 
 // ContainsPoint returns if a point is contained within the box.
@@ -32,6 +48,12 @@ func (box *Box) ContainsPoint(p *T) bool {
 	return p[0] >= box.Min[0] && p[0] <= box.Max[0] &&
 		p[1] >= box.Min[1] && p[1] <= box.Max[1] &&
 		p[2] >= box.Min[2] && p[2] <= box.Max[2]
+}
+
+func (box *Box) Contains(t *Box) bool {
+	return t.Min[0] >= box.Min[0] && t.Max[0] <= box.Max[0] &&
+		t.Min[1] >= box.Min[1] && t.Max[1] <= box.Max[1] &&
+		t.Min[2] >= box.Min[2] && t.Max[2] <= box.Max[2]
 }
 
 func (box *Box) Center() T {

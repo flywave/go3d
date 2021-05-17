@@ -2,6 +2,7 @@ package vec2
 
 import (
 	"fmt"
+	"math"
 )
 
 // Rect is a coordinate system aligned rectangle defined by a Min and Max vector.
@@ -14,6 +15,32 @@ type Rect struct {
 func ParseRect(s string) (r Rect, err error) {
 	_, err = fmt.Sscan(s, &r.Min[0], &r.Min[1], &r.Max[0], &r.Max[1])
 	return r, err
+}
+
+func (rect *Rect) Width() float32 {
+	return rect.Min[0] - rect.Max[0]
+}
+
+func (rect *Rect) Height() float32 {
+	return rect.Min[1] - rect.Max[1]
+}
+
+func (rect *Rect) Size() float32 {
+	width := rect.Width()
+	height := rect.Height()
+	return float32(math.Max(float64(width), float64(height)))
+}
+
+// Slice returns the elements of the vector as slice.
+func (rect *Rect) Slice() []float32 {
+	return rect.Array()[:]
+}
+
+func (rect *Rect) Array() *[4]float32 {
+	return &[...]float32{
+		rect.Min[0], rect.Min[1],
+		rect.Max[0], rect.Max[1],
+	}
 }
 
 // String formats Rect as string. See also ParseRect().
