@@ -292,7 +292,7 @@ func (mat *T) Quaternion() quaternion.T {
 	m31, m32, m33 := mat[0][2], mat[1][2], mat[2][2]
 
 	trace := m11 + m22 + m33
-	var s, _w, _x, _y, _z float32
+	var s, _w, _x, _y, _z float64
 
 	if trace > 0 {
 		s = 0.5 / math.Sqrt(trace+1.0)
