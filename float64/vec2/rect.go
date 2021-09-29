@@ -74,18 +74,22 @@ func (rect *Rect) Area() float64 {
 	return (rect.Max[0] - rect.Min[0]) * (rect.Max[1] - rect.Min[1])
 }
 
-// func (rect *Rect) Intersects(other *Rect) bool {
-// 	panic("not implemented")
-// }
-
-// func Intersect(a, b *Rect) Rect {
-// 	panic("not implemented")
-// }
+func (rect *Rect) Intersects(other *Rect) bool {
+	return other.Max[0] >= rect.Min[0] &&
+		other.Min[0] <= rect.Max[0] &&
+		other.Max[1] >= rect.Min[0] &&
+		other.Min[1] <= rect.Max[1]
+}
 
 // Join enlarges this rectangle to contain also the given rectangle.
 func (rect *Rect) Join(other *Rect) {
 	rect.Min = Min(&rect.Min, &other.Min)
 	rect.Max = Max(&rect.Max, &other.Max)
+}
+
+func (rect *Rect) Extend(p *T) {
+	rect.Min = Min(&rect.Min, p)
+	rect.Max = Max(&rect.Max, p)
 }
 
 // Joined returns the minimal rectangle containing both a and b.

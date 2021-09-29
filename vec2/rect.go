@@ -68,10 +68,19 @@ func (rect *Rect) Intersects(other *Rect) bool {
 		other.Min[1] <= rect.Max[1]
 }
 
-// func Intersect(a, b *Rect) Rect {
-// 	panic("not implemented")
-// }
+func (rect *Rect) Join(other *Rect) {
+	rect.Min = Min(&rect.Min, &other.Min)
+	rect.Max = Max(&rect.Max, &other.Max)
+}
 
-// func Join(a, b *Rect) Rect {
-// 	panic("not implemented")
-// }
+func (rect *Rect) Extend(p *T) {
+	rect.Min = Min(&rect.Min, p)
+	rect.Max = Max(&rect.Max, p)
+}
+
+// Joined returns the minimal rectangle containing both a and b.
+func Joined(a, b *Rect) (rect Rect) {
+	rect.Min = Min(&a.Min, &b.Min)
+	rect.Max = Max(&a.Max, &b.Max)
+	return rect
+}
