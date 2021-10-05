@@ -5,9 +5,9 @@ import (
 	"math"
 	"testing"
 
-	quaternion64 "github.com/ungerik/go3d/float64/quaternion"
-	vec364 "github.com/ungerik/go3d/float64/vec3"
-	"github.com/ungerik/go3d/vec3"
+	quaternion64 "github.com/flywave/go3d/float64/quaternion"
+	vec364 "github.com/flywave/go3d/float64/vec3"
+	"github.com/flywave/go3d/vec3"
 )
 
 // RotateVec3 rotates v by the rotation represented by the quaternion.
