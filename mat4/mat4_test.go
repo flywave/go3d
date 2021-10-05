@@ -1,10 +1,9 @@
 package mat4
 
 import (
-	"fmt"
+	math "github.com/flywave/go3d/fmath"
 	"testing"
 
-	math "github.com/barnex/fmath"
 	"github.com/flywave/go3d/float64/mat4"
 	"github.com/flywave/go3d/float64/quaternion"
 	dvec3 "github.com/flywave/go3d/float64/vec3"
