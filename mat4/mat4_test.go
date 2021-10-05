@@ -1,8 +1,10 @@
 package mat4
 
 import (
-	math "github.com/flywave/go3d/fmath"
+	"fmt"
 	"testing"
+
+	math "github.com/flywave/go3d/fmath"
 
 	"github.com/flywave/go3d/float64/mat4"
 	"github.com/flywave/go3d/float64/quaternion"
@@ -250,9 +252,8 @@ func TestDecompose(t *testing.T) {
 	mat.AssignQuaternion(&q)
 	mat.Translate(&dvec3.T{2, 3, 4})
 
-	v1, v2, v3, v4 := mat4.Decompose(mat)
+	v1, v2, v3 := mat4.Decompose(mat)
 	fmt.Printf("旋转 %f,%f,%f \n", v1[0], v1[1], v1[2])
 	fmt.Printf("平移 %f,%f,%f \n", v2[0], v2[1], v2[2])
 	fmt.Printf("缩放 %f,%f,%f \n", v3[0], v3[1], v3[2])
-	fmt.Printf("仿射 %f,%f,%f \n", v4[0], v4[1], v4[2])
 }
