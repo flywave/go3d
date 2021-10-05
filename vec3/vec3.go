@@ -321,6 +321,30 @@ func (vec *T) Clamped01() T {
 	return result
 }
 
+func (vec *T) SetMin(c T) {
+	if c[0] < vec[0] {
+		vec[0] = c[0]
+	}
+	if c[1] < vec[1] {
+		vec[1] = c[1]
+	}
+	if c[2] < vec[2] {
+		vec[2] = c[2]
+	}
+}
+
+func (vec *T) SetMax(c T) {
+	if c[0] > vec[0] {
+		vec[0] = c[0]
+	}
+	if c[1] > vec[1] {
+		vec[1] = c[1]
+	}
+	if c[2] > vec[2] {
+		vec[2] = c[2]
+	}
+}
+
 func Rotated(vec *T, axis *T, rad float32) *T {
 	sin_val := math.Sin(rad)
 	cos_val := math.Cos(rad)

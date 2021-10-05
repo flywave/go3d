@@ -305,3 +305,20 @@ func (vec *T) Clamped01() T {
 	result.Clamp01()
 	return result
 }
+
+func (vec *T) SetMin(c T) {
+	if c[0] < vec[0] {
+		vec[0] = c[0]
+	}
+	if c[1] < vec[1] {
+		vec[1] = c[1]
+	}
+}
+func (vec *T) SetMax(c T) {
+	if c[0] > vec[0] {
+		vec[0] = c[0]
+	}
+	if c[1] > vec[1] {
+		vec[1] = c[1]
+	}
+}
