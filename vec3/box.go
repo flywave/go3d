@@ -2,6 +2,9 @@ package vec3
 
 import (
 	"fmt"
+
+	"github.com/flywave/go3d/float64/vec3"
+	"github.com/flywave/go3d/quaternion"
 )
 
 // Box is a coordinate system aligned 3D box defined by a Min and Max vector.
@@ -98,4 +101,21 @@ func Joined(a, b *Box) Box {
 	joined.Min = Min(&a.Min, &b.Min)
 	joined.Max = Max(&a.Max, &b.Max)
 	return joined
+}
+
+func Compose(pos *vec3.T, quat *quaternion.T, scale *vec3.T) *T {
+	posMat := Ident
+	posMat.SetTranslation(pos)
+	quatMat := Ident
+	quatMat.AssignQuaternion(quat)
+	scaleMat := Ident
+	scaleMat.ScaleVec3(scale)
+
+	qsMat := Ident
+	qsMat.AssignMul(&quatMat, &scaleMat)
+
+	result := Ident
+	result.AssignMul(&posMat, &qsMat)
+
+	return &result
 }

@@ -196,6 +196,21 @@ func (vec *T) Mul(v *T) *T {
 	return vec
 }
 
+func (vec *T) ProjectOnVector(vector *T) *T {
+	scalar := Dot(vector, vec) / vector.LengthSqr()
+	copy(vec[:], vector[:])
+	return vec.Scale(scalar)
+}
+
+func (vec *T) ProjectOnPlane(planeNormal *T) *T {
+	v1 := T{}
+	copy(v1[:], vec[:])
+	v1.ProjectOnVector(planeNormal)
+	result := Sub(vec, &v1)
+	copy(vec[:], result[:])
+	return vec
+}
+
 // Add returns the sum of two vectors.
 func Add(a, b *T) T {
 	return T{a[0] + b[0], a[1] + b[1], a[2] + b[2]}

@@ -738,3 +738,59 @@ func Decompose(mat *T) (*vec3.T, *quaternion.T, *vec3.T) {
 
 	return &position, &quat, &scale
 }
+
+func Compose(pos *vec3.T, quat *quaternion.T, scale *vec3.T) *T {
+	posMat := Ident
+	posMat.SetTranslation(pos)
+	quatMat := Ident
+	quatMat.AssignQuaternion(quat)
+	scaleMat := Ident
+	scaleMat.ScaleVec3(scale)
+
+	qsMat := Ident
+	qsMat.AssignMul(&quatMat, &scaleMat)
+
+	result := Ident
+	result.AssignMul(&posMat, &qsMat)
+
+	return &result
+}
+
+func (mat *T) LookAt(eye, target, up vec3.T) *T {
+	_z := vec3.Sub(&eye, &target)
+
+	if _z.LengthSqr() == 0 {
+		// eye and target are in the same position
+		_z[2] = 1
+	}
+
+	_z.Normalize()
+	_x := vec3.Cross(&up, &_z)
+
+	if _x.LengthSqr() == 0 {
+		// up and z are parallel
+		if math.Abs(up[2]) == 1 {
+			_z[0] += 0.0001
+		} else {
+			_z[2] += 0.0001
+		}
+
+		_z.Normalize()
+		_x = vec3.Cross(&up, &_z)
+	}
+
+	_x.Normalize()
+	_y := vec3.Cross(&_z, &_x)
+
+	mat[0][0] = _x[0]
+	mat[0][1] = _y[0]
+	mat[0][2] = _z[0]
+	mat[1][0] = _x[1]
+	mat[1][1] = _y[1]
+	mat[1][2] = _z[1]
+	mat[2][0] = _x[2]
+	mat[2][1] = _y[2]
+	mat[2][2] = _z[2]
+	mat.Transpose()
+	return mat
+}
