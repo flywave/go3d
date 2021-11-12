@@ -4,7 +4,8 @@ package vec4
 import (
 	"fmt"
 
-	math "github.com/barnex/fmath"
+	math "github.com/flywave/go3d/fmath"
+
 	"github.com/flywave/go3d/generic"
 	"github.com/flywave/go3d/vec3"
 )

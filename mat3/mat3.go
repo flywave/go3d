@@ -4,7 +4,8 @@ package mat3
 import (
 	"fmt"
 
-	math "github.com/barnex/fmath"
+	math "github.com/flywave/go3d/fmath"
+
 	"github.com/flywave/go3d/generic"
 	"github.com/flywave/go3d/mat2"
 	"github.com/flywave/go3d/quaternion"
