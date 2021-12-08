@@ -45,6 +45,16 @@ func From(other generic.T) T {
 	return r
 }
 
+func FromArray(mtw [16]float64) T {
+	mt := T{
+		vec4.T{mtw[0], mtw[1], mtw[2], mtw[3]},
+		vec4.T{mtw[4], mtw[5], mtw[6], mtw[7]},
+		vec4.T{mtw[8], mtw[9], mtw[10], mtw[11]},
+		vec4.T{mtw[12], mtw[13], mtw[14], mtw[15]},
+	}
+	return mt
+}
+
 // Parse parses T from a string. See also String()
 func Parse(s string) (r T, err error) {
 	_, err = fmt.Sscan(s,
