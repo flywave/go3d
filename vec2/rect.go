@@ -17,11 +17,11 @@ func ParseRect(s string) (r Rect, err error) {
 	return r, err
 }
 
-func (rect *Rect) Width() float64 {
+func (rect *Rect) Width() float32 {
 	return rect.Max[0] - rect.Min[0]
 }
 
-func (rect *Rect) Height() float64 {
+func (rect *Rect) Height() float32 {
 	return rect.Max[1] - rect.Min[1]
 }
 
