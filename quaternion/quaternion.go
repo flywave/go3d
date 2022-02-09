@@ -157,6 +157,10 @@ func (quat *T) Inverted() T {
 	return T{-quat[0], -quat[1], -quat[2], quat[3]}
 }
 
+func (quat *T) IsIdent() bool {
+	return quat[0] == 0 && quat[1] == 0 && quat[2] == 0 && quat[3] == 1
+}
+
 // SetShortestRotation negates the quaternion if it does not represent the shortest rotation from quat to the orientation of other.
 // (there are two directions to rotate from the orientation of quat to the orientation of other)
 // See IsShortestRotation()

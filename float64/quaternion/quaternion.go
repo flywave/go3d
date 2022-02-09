@@ -151,6 +151,10 @@ func (quat *T) Invert() *T {
 	return quat
 }
 
+func (quat *T) IsIdent() bool {
+	return quat[0] == 0 && quat[1] == 0 && quat[2] == 0 && quat[3] == 1
+}
+
 // Inverted returns an inverted copy of the quaternion.
 func (quat *T) Inverted() T {
 	return T{-quat[0], -quat[1], -quat[2], quat[3]}
