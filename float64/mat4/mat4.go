@@ -804,3 +804,12 @@ func (mat *T) LookAt(eye, target, up vec3.T) *T {
 	mat.Transpose()
 	return mat
 }
+
+func AssignMul(a, b *T) *T {
+	mat := Ident
+	mat[0] = a.MulVec4(&b[0])
+	mat[1] = a.MulVec4(&b[1])
+	mat[2] = a.MulVec4(&b[2])
+	mat[3] = a.MulVec4(&b[3])
+	return &mat
+}
