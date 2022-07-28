@@ -77,7 +77,7 @@ func (rect *Rect) Area() float64 {
 func (rect *Rect) Intersects(other *Rect) bool {
 	return other.Max[0] >= rect.Min[0] &&
 		other.Min[0] <= rect.Max[0] &&
-		other.Max[1] >= rect.Min[0] &&
+		other.Max[1] >= rect.Min[1] &&
 		other.Min[1] <= rect.Max[1]
 }
 
