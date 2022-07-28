@@ -1,4 +1,3 @@
 module github.com/flywave/go3d
 
-go 1.17
-
+go 1.18
