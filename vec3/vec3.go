@@ -380,9 +380,16 @@ func PointSegmentDistance(p1 *T, x1 *T, x2 *T) float32 {
 	v := Sub(x2, x1)
 	w := Sub(p1, x1)
 
+	vn := v.Normalized()
+	wn := w.Normalized()
+	cn := Dot(&vn, &wn)
+	if math.Abs(math.Abs(cn)-1) < 1e-5 {
+		return 0
+	}
+
 	c1 := Dot(&w, &v)
 	if c1 <= 0 {
-		return w.Length()
+		return 0
 	}
 
 	c2 := Dot(&v, &v)
