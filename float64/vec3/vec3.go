@@ -377,26 +377,15 @@ func Rotated(vec *T, axis *T, rad float64) *T {
 func PointSegmentDistance(p1 *T, x1 *T, x2 *T) float64 {
 	v := Sub(x2, x1)
 	w := Sub(p1, x1)
+	if w.IsZero() {
+		return 0
+	}
 
 	vn := v.Normalized()
 	wn := w.Normalized()
 	cn := Dot(&vn, &wn)
-	if math.Abs(math.Abs(cn)-1) < 1e-5 {
+	if math.Abs(math.Abs(cn)-1) < 1e-8 {
 		return 0
 	}
-
-	c1 := Dot(&w, &v)
-	if c1 <= 0 {
-		return 0
-	}
-
-	c2 := Dot(&v, &v)
-	if c2 <= c1 {
-		return p1.Sub(x2).Length()
-	}
-
-	b := c1 / c2
-	s := v.Scaled(b)
-	pb := x1.Add(&s)
-	return p1.Sub(pb).Length()
+	return w.Length() * math.Sqrt((1 - cn*cn))
 }
