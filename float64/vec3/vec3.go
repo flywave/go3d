@@ -394,14 +394,14 @@ func PointSegmentVerticalPoint(p1 *T, x1 *T, x2 *T) *T {
 	v := Sub(x2, x1)
 	w := Sub(p1, x1)
 	if w.IsZero() {
-		return &T{p1[0], p1[0]}
+		return &T{p1[0], p1[1]}
 	}
 
 	vn := v.Normalized()
 	wn := w.Normalized()
 	cn := Dot(&vn, &wn)
 	if math.Abs(math.Abs(cn)-1) < 1e-8 {
-		return &T{p1[0], p1[0]}
+		return &T{p1[0], p1[1]}
 	}
 	c1 := Dot(&w, &v)
 	c2 := Dot(&v, &v)
