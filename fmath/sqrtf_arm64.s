@@ -4,6 +4,7 @@
 
 // func Sqrtf(x float32) float32
 TEXT ·Sqrtf(SB),NOSPLIT,$0
-	SQRTSS x+0(FP), X0
-	MOVSS X0, ret+8(FP)
+	FMOVS	x+0(FP), F0
+	FSQRTS	F0, F0
+	FMOVS	F0, ret+8(FP)
 	RET
