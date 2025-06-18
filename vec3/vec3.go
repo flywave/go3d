@@ -360,6 +360,14 @@ func (vec *T) SetMax(c T) {
 	}
 }
 
+func (v *T) Lerp(other *T, t float32) T {
+	return T{
+		v[0] + t*(other[0]-v[0]),
+		v[1] + t*(other[1]-v[1]),
+		v[2] + t*(other[2]-v[2]),
+	}
+}
+
 func Rotated(vec *T, axis *T, rad float32) *T {
 	sin_val := math.Sin(rad)
 	cos_val := math.Cos(rad)

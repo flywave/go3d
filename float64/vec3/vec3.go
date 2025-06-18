@@ -210,6 +210,14 @@ func (vec *T) ProjectOnPlane(planeNormal *T) *T {
 	return vec
 }
 
+func (v *T) Lerp(other *T, t float64) T {
+	return T{
+		v[0] + t*(other[0]-v[0]),
+		v[1] + t*(other[1]-v[1]),
+		v[2] + t*(other[2]-v[2]),
+	}
+}
+
 // Add returns the sum of two vectors.
 func Add(a, b *T) T {
 	return T{a[0] + b[0], a[1] + b[1], a[2] + b[2]}
