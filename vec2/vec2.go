@@ -197,6 +197,18 @@ func (v *T) Lerp(other *T, t float32) T {
 	}
 }
 
+// Squared Distance between two vectors
+func SquareDistance(a, b *T) float32 {
+	d := Sub(a, b)
+	return d.LengthSqr()
+}
+
+// Distance between two vectors
+func Distance(a, b *T) float32 {
+	d := Sub(a, b)
+	return d.Length()
+}
+
 // Add returns the sum of two vectors.
 func Add(a, b *T) T {
 	return T{a[0] + b[0], a[1] + b[1]}
