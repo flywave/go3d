@@ -628,10 +628,10 @@ func (vec *T) IsZero() bool {
 // Shuffle returns the vector with its components shuffled in the order according to mask.
 //
 // Example:
-// 		vec := vec4.T{1, 2, 3, 4}
-//		vec.Shuffle(vec4.WZYX)
-//		check := vec == T{4, 3, 2, 1} // true
 //
+//	vec := vec4.T{1, 2, 3, 4}
+//	vec.Shuffle(vec4.WZYX)
+//	check := vec == T{4, 3, 2, 1} // true
 func (vec *T) Shuffle(mask ShuffleMask) *T {
 	*vec = vec.Shuffled(mask)
 	return vec
@@ -640,9 +640,9 @@ func (vec *T) Shuffle(mask ShuffleMask) *T {
 // Shuffled returns a copy of the vector with its components shuffled in the order according to mask.
 //
 // Example:
-// 		vec := vec4.T{1, 2, 3, 4}
-//		check := vec.Shuffled(vec4.WZYX) == T{4, 3, 2, 1} // true
 //
+//	vec := vec4.T{1, 2, 3, 4}
+//	check := vec.Shuffled(vec4.WZYX) == T{4, 3, 2, 1} // true
 func (vec *T) Shuffled(mask ShuffleMask) (result T) {
 	result[0] = vec[mask&3]
 	result[1] = vec[(mask>>2)&3]
@@ -783,6 +783,15 @@ func (vec *T) Sub(v *T) *T {
 		vec[2] -= v3[2]
 	}
 	return vec
+}
+
+func (v *T) Lerp(other *T, t float32) T {
+	return T{
+		v[0] + t*(other[0]-v[0]),
+		v[1] + t*(other[1]-v[1]),
+		v[2] + t*(other[2]-v[2]),
+		v[3] + t*(other[3]-v[3]),
+	}
 }
 
 // Add returns the sum of two vectors.

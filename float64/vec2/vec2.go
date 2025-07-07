@@ -189,6 +189,25 @@ func (vec *T) Angle() float64 {
 	return math.Atan2(vec[1], vec[0])
 }
 
+func (v *T) Lerp(other *T, t float64) T {
+	return T{
+		v[0] + t*(other[0]-v[0]),
+		v[1] + t*(other[1]-v[1]),
+	}
+}
+
+// Squared Distance between two vectors
+func SquareDistance(a, b *T) float64 {
+	d := Sub(a, b)
+	return d.LengthSqr()
+}
+
+// Distance between two vectors
+func Distance(a, b *T) float64 {
+	d := Sub(a, b)
+	return d.Length()
+}
+
 // Add returns the sum of two vectors.
 func Add(a, b *T) T {
 	return T{a[0] + b[0], a[1] + b[1]}
