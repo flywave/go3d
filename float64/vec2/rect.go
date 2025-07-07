@@ -98,3 +98,7 @@ func Joined(a, b *Rect) (rect Rect) {
 	rect.Max = Max(&a.Max, &b.Max)
 	return rect
 }
+
+func (rect *Rect) Center() T {
+	return T{(rect.Max[0] + rect.Min[0]) / 2.0, (rect.Max[1] + rect.Min[1]) / 2.0}
+}
