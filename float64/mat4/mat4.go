@@ -821,3 +821,8 @@ func AssignMul(a, b *T) *T {
 	mat[3] = a.MulVec4(&b[3])
 	return &mat
 }
+
+func RecomposeMatrix(mat T) T {
+	t, r, s := Decompose(&mat)
+	return *Compose(t, r, s)
+}
