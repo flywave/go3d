@@ -4,6 +4,8 @@ package mat2
 import (
 	"fmt"
 
+	f64 "github.com/flywave/go3d/float64/math"
+
 	"github.com/flywave/go3d/float64/generic"
 	"github.com/flywave/go3d/float64/vec2"
 )
@@ -99,7 +101,7 @@ func (mat *T) Scaled(f float64) T {
 }
 
 // Scaling returns the scaling diagonal of the matrix.
-func (mat *T) Scaling() vec2.T {
+func (mat T) Scaling() vec2.T {
 	return vec2.T{mat[0][0], mat[1][1]}
 }
 
@@ -111,7 +113,7 @@ func (mat *T) SetScaling(s *vec2.T) *T {
 }
 
 // Trace returns the trace value for the matrix.
-func (mat *T) Trace() float64 {
+func (mat T) Trace() float64 {
 	return mat[0][0] + mat[1][1]
 }
 
@@ -123,7 +125,7 @@ func (mat *T) AssignMul(a, b *T) *T {
 }
 
 // MulVec2 multiplies vec with mat.
-func (mat *T) MulVec2(vec *vec2.T) vec2.T {
+func (mat T) MulVec2(vec *vec2.T) vec2.T {
 	return vec2.T{
 		mat[0][0]*vec[0] + mat[1][0]*vec[1],
 		mat[0][1]*vec[1] + mat[1][1]*vec[1],
@@ -131,7 +133,7 @@ func (mat *T) MulVec2(vec *vec2.T) vec2.T {
 }
 
 // TransformVec2 multiplies v with mat and saves the result in v.
-func (mat *T) TransformVec2(v *vec2.T) {
+func (mat T) TransformVec2(v *vec2.T) {
 	// Use intermediate variables to not alter further computations.
 	x := mat[0][0]*v[0] + mat[1][0]*v[1]
 	v[1] = mat[0][1]*v[0] + mat[1][1]*v[1]
@@ -144,4 +146,23 @@ func (mat *T) Transpose() *T {
 	mat[0][1] = mat[1][0]
 	mat[1][0] = temp
 	return mat
+}
+
+// Transposed returns a transposed copy of the matrix.
+func (mat T) Transposed() T {
+	result := mat
+	result.Transpose()
+	return result
+}
+
+// AlmostEqual returns true if vec and o are equal allowing for numerical error tol.
+func (mat T) AlmostEqual(o T, tol float64) bool {
+	for i := 0; i < 2; i++ {
+		for j := 0; j < 2; j++ {
+			if !f64.AlmostEqual64(mat[i][j], o[i][j], tol) {
+				return false
+			}
+		}
+	}
+	return true
 }

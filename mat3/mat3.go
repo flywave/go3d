@@ -101,13 +101,13 @@ func (mat *T) Scale(f float32) *T {
 }
 
 // Scaled returns a copy of the matrix with the diagonal scale elements multiplied by f.
-func (mat *T) Scaled(f float32) T {
-	r := *mat
+func (mat T) Scaled(f float32) T {
+	r := mat
 	return *r.Scale(f)
 }
 
 // Scaling returns the scaling diagonal of the matrix.
-func (mat *T) Scaling() vec3.T {
+func (mat T) Scaling() vec3.T {
 	return vec3.T{mat[0][0], mat[1][1], mat[2][2]}
 }
 
@@ -153,7 +153,7 @@ func (mat *T) TranslateY(dy float32) *T {
 }
 
 // Trace returns the trace value for the matrix.
-func (mat *T) Trace() float32 {
+func (mat T) Trace() float32 {
 	return mat[0][0] + mat[1][1] + mat[2][2]
 }
 
@@ -176,7 +176,7 @@ func (mat *T) AssignMat2x2(m *mat2.T) *T {
 }
 
 // MulVec3 multiplies v with mat and returns a new vector v' = M * v.
-func (mat *T) MulVec3(v *vec3.T) vec3.T {
+func (mat T) MulVec3(v *vec3.T) vec3.T {
 	return vec3.T{
 		mat[0][0]*v[0] + mat[1][0]*v[1] + mat[2][0]*v[2],
 		mat[0][1]*v[0] + mat[1][1]*v[1] + mat[2][1]*v[2],
@@ -185,7 +185,7 @@ func (mat *T) MulVec3(v *vec3.T) vec3.T {
 }
 
 // TransformVec3 multiplies v with mat and saves the result in v.
-func (mat *T) TransformVec3(v *vec3.T) {
+func (mat T) TransformVec3(v *vec3.T) {
 	// Use intermediate variables to not alter further computations.
 	x := mat[0][0]*v[0] + mat[1][0]*v[1] + mat[2][0]*v[2]
 	y := mat[0][1]*v[0] + mat[1][1]*v[1] + mat[2][1]*v[2]
@@ -195,7 +195,7 @@ func (mat *T) TransformVec3(v *vec3.T) {
 }
 
 // Quaternion extracts a quaternion from the rotation part of the matrix.
-func (mat *T) Quaternion() quaternion.T {
+func (mat T) Quaternion() quaternion.T {
 	tr := mat.Trace()
 
 	s := math.Sqrt(tr + 1)
@@ -340,7 +340,7 @@ func (mat *T) AssignEulerRotation(yHead, xPitch, zRoll float32) *T {
 }
 
 // ExtractEulerAngles extracts the rotation part of the matrix as Euler angle rotation values.
-func (mat *T) ExtractEulerAngles() (yHead, xPitch, zRoll float32) {
+func (mat T) ExtractEulerAngles() (yHead, xPitch, zRoll float32) {
 	xPitch = math.Asin(mat[1][2])
 	f12 := math.Abs(mat[1][2])
 	if f12 > (1.0-0.0001) && f12 < (1.0+0.0001) { // f12 == 1.0
@@ -354,7 +354,7 @@ func (mat *T) ExtractEulerAngles() (yHead, xPitch, zRoll float32) {
 }
 
 // Determinant returns the determinant of the matrix.
-func (mat *T) Determinant() float32 {
+func (mat T) Determinant() float32 {
 	return mat[0][0]*mat[1][1]*mat[2][2] +
 		mat[1][0]*mat[2][1]*mat[0][2] +
 		mat[2][0]*mat[0][1]*mat[1][2] -
@@ -364,7 +364,7 @@ func (mat *T) Determinant() float32 {
 }
 
 // IsReflective returns true if the matrix can be reflected by a plane.
-func (mat *T) IsReflective() bool {
+func (mat T) IsReflective() bool {
 	return mat.Determinant() < 0
 }
 
@@ -380,4 +380,22 @@ func (mat *T) Transpose() *T {
 	swap(&mat[2][0], &mat[0][2])
 	swap(&mat[2][1], &mat[1][2])
 	return mat
+}
+
+// Transposed returns a transposed copy of the matrix.
+func (mat T) Transposed() T {
+	result := mat
+	result.Transpose()
+	return result
+}
+
+func (mat T) AlmostEqual(o T, tol float32) bool {
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if !math.AlmostEqual32(mat[i][j], o[i][j], tol) {
+				return false
+			}
+		}
+	}
+	return true
 }

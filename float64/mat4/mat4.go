@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math"
 
+	f64 "github.com/flywave/go3d/float64/math"
+
 	"github.com/flywave/go3d/float64/generic"
 	"github.com/flywave/go3d/float64/mat2"
 	"github.com/flywave/go3d/float64/mat3"
@@ -110,8 +112,8 @@ func (mat *T) Scale(f float64) *T {
 }
 
 // Scaled returns a copy of the matrix with the diagonal scale elements multiplied by f.
-func (mat *T) Scaled(f float64) T {
-	r := *mat
+func (mat T) Scaled(f float64) T {
+	r := mat
 	return *r.Scale(f)
 }
 
@@ -126,19 +128,19 @@ func (mat *T) Mul(f float64) *T {
 }
 
 // Muled returns a copy of the matrix with every element multiplied by f.
-func (mat *T) Muled(f float64) T {
-	result := *mat
+func (mat T) Muled(f float64) T {
+	result := mat
 	result.Mul(f)
 	return result
 }
 
 // Trace returns the trace value for the matrix.
-func (mat *T) Trace() float64 {
+func (mat T) Trace() float64 {
 	return mat[0][0] + mat[1][1] + mat[2][2] + mat[3][3]
 }
 
 // Trace3 returns the trace value for the 3x3 sub-matrix.
-func (mat *T) Trace3() float64 {
+func (mat T) Trace3() float64 {
 	return mat[0][0] + mat[1][1] + mat[2][2]
 }
 
@@ -174,7 +176,7 @@ func (mat *T) AssignMul(a, b *T) *T {
 }
 
 // MulVec4 multiplies v with mat and returns a new vector v' = M * v.
-func (mat *T) MulVec4(v *vec4.T) vec4.T {
+func (mat T) MulVec4(v *vec4.T) vec4.T {
 	return vec4.T{
 		mat[0][0]*v[0] + mat[1][0]*v[1] + mat[2][0]*v[2] + mat[3][0]*v[3],
 		mat[0][1]*v[0] + mat[1][1]*v[1] + mat[2][1]*v[2] + mat[3][1]*v[3],
@@ -184,7 +186,7 @@ func (mat *T) MulVec4(v *vec4.T) vec4.T {
 }
 
 // TransformVec4 multiplies v with mat and saves the result in v.
-func (mat *T) TransformVec4(v *vec4.T) {
+func (mat T) TransformVec4(v *vec4.T) {
 	// Use intermediate variables to not alter further computations.
 	x := mat[0][0]*v[0] + mat[1][0]*v[1] + mat[2][0]*v[2] + mat[3][0]*v[3]
 	y := mat[0][1]*v[0] + mat[1][1]*v[1] + mat[2][1]*v[2] + mat[3][1]*v[3]
@@ -197,7 +199,7 @@ func (mat *T) TransformVec4(v *vec4.T) {
 
 // MulVec3 multiplies v (converted to a vec4 as (v_1, v_2, v_3, 1))
 // with mat and divides the result by w. Returns a new vec3.
-func (mat *T) MulVec3(v *vec3.T) vec3.T {
+func (mat T) MulVec3(v *vec3.T) vec3.T {
 	v4 := vec4.FromVec3(v)
 	v4 = mat.MulVec4(&v4)
 	return v4.Vec3DividedByW()
@@ -205,7 +207,7 @@ func (mat *T) MulVec3(v *vec3.T) vec3.T {
 
 // TransformVec3 multiplies v (converted to a vec4 as (v_1, v_2, v_3, 1))
 // with mat, divides the result by w and saves the result in v.
-func (mat *T) TransformVec3(v *vec3.T) {
+func (mat T) TransformVec3(v *vec3.T) {
 	x := mat[0][0]*v[0] + mat[1][0]*v[1] + mat[2][0]*v[2] + mat[3][0]
 	y := mat[0][1]*v[0] + mat[1][1]*v[1] + mat[2][1]*v[2] + mat[3][1]
 	z := mat[0][2]*v[0] + mat[1][2]*v[1] + mat[2][2]*v[2] + mat[3][2]
@@ -219,7 +221,7 @@ func (mat *T) TransformVec3(v *vec3.T) {
 // MulVec3W multiplies v with mat with w as fourth component of the vector.
 // Useful to differentiate between vectors (w = 0) and points (w = 1)
 // without transforming them to vec4.
-func (mat *T) MulVec3W(v *vec3.T, w float64) vec3.T {
+func (mat T) MulVec3W(v *vec3.T, w float64) vec3.T {
 	result := *v
 	mat.TransformVec3W(&result, w)
 	return result
@@ -229,7 +231,7 @@ func (mat *T) MulVec3W(v *vec3.T, w float64) vec3.T {
 // saves the result in v.
 // Useful to differentiate between vectors (w = 0) and points (w = 1)
 // without transforming them to vec4.
-func (mat *T) TransformVec3W(v *vec3.T, w float64) {
+func (mat T) TransformVec3W(v *vec3.T, w float64) {
 	// use intermediate variables to not alter further computations
 	x := mat[0][0]*v[0] + mat[1][0]*v[1] + mat[2][0]*v[2] + mat[3][0]*w
 	y := mat[0][1]*v[0] + mat[1][1]*v[1] + mat[2][1]*v[2] + mat[3][1]*w
@@ -294,7 +296,7 @@ func (mat *T) ScaleVec3(s *vec3.T) *T {
 	return mat
 }
 
-func (mat *T) Quaternion() quaternion.T {
+func (mat T) Quaternion() quaternion.T {
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 	// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
 	m11, m12, m13 := mat[0][0], mat[1][0], mat[2][0]
@@ -518,7 +520,7 @@ func (mat *T) AssignEulerRotation(yHead, xPitch, zRoll float64) *T {
 }
 
 // ExtractEulerAngles extracts the rotation part of the matrix as Euler angle rotation values.
-func (mat *T) ExtractEulerAngles() (yHead, xPitch, zRoll float64) {
+func (mat T) ExtractEulerAngles() (yHead, xPitch, zRoll float64) {
 	xPitch = math.Asin(mat[1][2])
 	f12 := math.Abs(mat[1][2])
 	if f12 > (1.0-0.0001) && f12 < (1.0+0.0001) { // f12 == 1.0
@@ -589,7 +591,7 @@ func (mat *T) AssignOrthogonalProjection(left, right, bottom, top, znear, zfar f
 }
 
 // Determinant3x3 returns the determinant of the 3x3 sub-matrix.
-func (mat *T) Determinant3x3() float64 {
+func (mat T) Determinant3x3() float64 {
 	return mat[0][0]*mat[1][1]*mat[2][2] +
 		mat[1][0]*mat[2][1]*mat[0][2] +
 		mat[2][0]*mat[0][1]*mat[1][2] -
@@ -598,7 +600,7 @@ func (mat *T) Determinant3x3() float64 {
 		mat[0][0]*mat[2][1]*mat[1][2]
 }
 
-func (mat *T) Determinant() float64 {
+func (mat T) Determinant() float64 {
 	s1 := mat[0][0]
 	det1 := mat[1][1]*mat[2][2]*mat[3][3] +
 		mat[2][1]*mat[3][2]*mat[1][3] +
@@ -632,7 +634,7 @@ func (mat *T) Determinant() float64 {
 }
 
 // IsReflective returns true if the matrix can be reflected by a plane.
-func (mat *T) IsReflective() bool {
+func (mat T) IsReflective() bool {
 	return mat.Determinant3x3() < 0
 }
 
@@ -646,6 +648,13 @@ func (mat *T) Transpose() *T {
 	swap(&mat[3][1], &mat[1][3])
 	swap(&mat[3][2], &mat[2][3])
 	return mat.Transpose3x3()
+}
+
+// Transposed returns a transposed copy of the matrix.
+func (mat T) Transposed() T {
+	result := mat
+	result.Transpose()
+	return result
 }
 
 // Transpose3x3 transposes the 3x3 sub-matrix.
@@ -670,8 +679,8 @@ func (mat *T) Adjugate() *T {
 }
 
 // Adjugated returns an adjugated copy of the matrix.
-func (mat *T) Adjugated() T {
-	result := *mat
+func (mat T) Adjugated() T {
+	result := mat
 	result.Adjugate()
 	return result
 }
@@ -708,17 +717,10 @@ func (mat *T) Invert() *T {
 
 // Inverted returns an inverted copy of the matrix.
 // Does not check if matrix is singular and may lead to strange results!
-func (mat *T) Inverted() T {
-	result := *mat
+func (mat T) Inverted() T {
+	result := mat
 	result.Invert()
 	return result
-}
-
-func v3Combine(a *vec3.T, b *vec3.T, result *vec3.T, ascl float64, bscl float64) {
-
-	result[0] = (ascl * a[0]) + (bscl * b[0])
-	result[1] = (ascl * a[1]) + (bscl * b[1])
-	result[2] = (ascl * a[2]) + (bscl * b[2])
 }
 
 func Decompose(mat *T) (*vec3.T, *quaternion.T, *vec3.T) {
@@ -825,4 +827,16 @@ func AssignMul(a, b *T) *T {
 func RecomposeMatrix(mat T) T {
 	t, r, s := Decompose(&mat)
 	return *Compose(t, r, s)
+}
+
+// AlmostEqual returns true if vec and o are equal allowing for numerical error tol.
+func (mat T) AlmostEqual(o T, tol float64) bool {
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			if !f64.AlmostEqual64(mat[i][j], o[i][j], tol) {
+				return false
+			}
+		}
+	}
+	return true
 }

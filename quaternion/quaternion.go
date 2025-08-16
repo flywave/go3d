@@ -62,8 +62,8 @@ func FromVec4(v *vec4.T) T {
 }
 
 // Vec4 converts the quaternion into a vec4.T.
-func (quat *T) Vec4() vec4.T {
-	return vec4.T(*quat)
+func (quat T) Vec4() vec4.T {
+	return vec4.T(quat)
 }
 
 // Parse parses T from a string. See also String()
@@ -78,7 +78,7 @@ func (quat *T) String() string {
 }
 
 // AxisAngle extracts the rotation in form of an axis and a rotation angle.
-func (quat *T) AxisAngle() (axis vec3.T, angle float32) {
+func (quat T) AxisAngle() (axis vec3.T, angle float32) {
 	cos := quat[3]
 	sin := math.Sqrt(1 - cos*cos)
 	angle = math.Acos(cos)
@@ -97,7 +97,7 @@ func (quat *T) AxisAngle() (axis vec3.T, angle float32) {
 }
 
 // Norm returns the norm value of the quaternion.
-func (quat *T) Norm() float32 {
+func (quat T) Norm() float32 {
 	return quat[0]*quat[0] + quat[1]*quat[1] + quat[2]*quat[2] + quat[3]*quat[3]
 }
 
@@ -115,7 +115,7 @@ func (quat *T) Normalize() *T {
 }
 
 // Normalized returns a copy normalized to a unit quaternation.
-func (quat *T) Normalized() T {
+func (quat T) Normalized() T {
 	norm := quat.Norm()
 	if norm != 1 && norm != 0 {
 		ool := 1 / math.Sqrt(norm)
@@ -126,7 +126,7 @@ func (quat *T) Normalized() T {
 			quat[3] * ool,
 		}
 	} else {
-		return *quat
+		return quat
 	}
 }
 
@@ -140,7 +140,7 @@ func (quat *T) Negate() *T {
 }
 
 // Negated returns a negated copy of the quaternion.
-func (quat *T) Negated() T {
+func (quat T) Negated() T {
 	return T{-quat[0], -quat[1], -quat[2], -quat[3]}
 }
 
@@ -153,11 +153,11 @@ func (quat *T) Invert() *T {
 }
 
 // Inverted returns an inverted copy of the quaternion.
-func (quat *T) Inverted() T {
+func (quat T) Inverted() T {
 	return T{-quat[0], -quat[1], -quat[2], quat[3]}
 }
 
-func (quat *T) IsIdent() bool {
+func (quat T) IsIdent() bool {
 	return quat[0] == 0 && quat[1] == 0 && quat[2] == 0 && quat[3] == 1
 }
 
@@ -179,14 +179,14 @@ func IsShortestRotation(a, b *T) bool {
 }
 
 // IsUnitQuat returns if the quaternion is within tolerance of the unit quaternion.
-func (quat *T) IsUnitQuat(tolerance float32) bool {
+func (quat T) IsUnitQuat(tolerance float32) bool {
 	norm := quat.Norm()
 	return norm >= (1.0-tolerance) && norm <= (1.0+tolerance)
 }
 
 // RotateVec3 rotates v by the rotation represented by the quaternion.
 // using the algorithm mentioned here https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
-func (quat *T) RotateVec3(v *vec3.T) {
+func (quat T) RotateVec3(v *vec3.T) {
 	u := vec3.T{quat[0], quat[1], quat[2]}
 	s := quat[3]
 	vt1 := u.Scaled(2 * vec3.Dot(&u, v))
@@ -200,7 +200,7 @@ func (quat *T) RotateVec3(v *vec3.T) {
 
 // RotatedVec3 returns a rotated copy of v.
 // using the algorithm mentioned here https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
-func (quat *T) RotatedVec3(v *vec3.T) vec3.T {
+func (quat T) RotatedVec3(v *vec3.T) vec3.T {
 	u := vec3.T{quat[0], quat[1], quat[2]}
 	s := quat[3]
 	vt1 := u.Scaled(2 * vec3.Dot(&u, v))
@@ -266,4 +266,9 @@ func Vec3Diff(a, b *vec3.T) T {
 
 	q := T{cr[0] * oosr, cr[1] * oosr, cr[2] * oosr, sr * 0.5}
 	return q.Normalized()
+}
+
+// AlmostEqual returns true if vec and o are equal allowing for numerical error tol.
+func (quat T) AlmostEqual(o T, tol float32) bool {
+	return math.AlmostEqual32(quat[0], o[0], tol) && math.AlmostEqual32(quat[1], o[1], tol) && math.AlmostEqual32(quat[2], o[2], tol) && math.AlmostEqual32(quat[3], o[3], tol)
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math"
 
+	f64 "github.com/flywave/go3d/float64/math"
+
 	"github.com/flywave/go3d/float64/generic"
 )
 
@@ -96,13 +98,13 @@ func (vec *T) IsZero() bool {
 
 // Length returns the length of the vector.
 // See also LengthSqr and Normalize.
-func (vec *T) Length() float64 {
+func (vec T) Length() float64 {
 	return math.Sqrt(vec.LengthSqr())
 }
 
 // LengthSqr returns the squared length of the vector.
 // See also Length and Normalize.
-func (vec *T) LengthSqr() float64 {
+func (vec T) LengthSqr() float64 {
 	return vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]
 }
 
@@ -115,7 +117,7 @@ func (vec *T) Scale(f float64) *T {
 }
 
 // Scaled returns a copy of vec with all elements multiplies by f.
-func (vec *T) Scaled(f float64) T {
+func (vec T) Scaled(f float64) T {
 	return T{vec[0] * f, vec[1] * f, vec[2] * f}
 }
 
@@ -128,7 +130,7 @@ func (vec *T) Invert() *T {
 }
 
 // Inverted returns an inverted copy of the vector.
-func (vec *T) Inverted() T {
+func (vec T) Inverted() T {
 	return T{-vec[0], -vec[1], -vec[2]}
 }
 
@@ -141,7 +143,7 @@ func (vec *T) Abs() *T {
 }
 
 // Absed returns a copy of the vector containing the absolute values.
-func (vec *T) Absed() T {
+func (vec T) Absed() T {
 	return T{math.Abs(vec[0]), math.Abs(vec[1]), math.Abs(vec[2])}
 }
 
@@ -156,15 +158,15 @@ func (vec *T) Normalize() *T {
 }
 
 // Normalized returns a unit length normalized copy of the vector.
-func (vec *T) Normalized() T {
-	v := *vec
+func (vec T) Normalized() T {
+	v := vec
 	v.Normalize()
 	return v
 }
 
 // Normal returns an orthogonal vector.
-func (vec *T) Normal() T {
-	n := Cross(vec, &UnitZ)
+func (vec T) Normal() T {
+	n := Cross(&vec, &UnitZ)
 	if n.IsZero() {
 		return UnitX
 	}
@@ -210,7 +212,7 @@ func (vec *T) ProjectOnPlane(planeNormal *T) *T {
 	return vec
 }
 
-func (v *T) Lerp(other *T, t float64) T {
+func (v T) Lerp(other *T, t float64) T {
 	return T{
 		v[0] + t*(other[0]-v[0]),
 		v[1] + t*(other[1]-v[1]),
@@ -324,8 +326,8 @@ func (vec *T) Clamp(min, max *T) *T {
 }
 
 // Clamped returns a copy of the vector with the components clamped to be in the range of min to max.
-func (vec *T) Clamped(min, max *T) T {
-	result := *vec
+func (vec T) Clamped(min, max *T) T {
+	result := vec
 	result.Clamp(min, max)
 	return result
 }
@@ -336,8 +338,8 @@ func (vec *T) Clamp01() *T {
 }
 
 // Clamped01 returns a copy of the vector with the components clamped to be in the range of 0 to 1.
-func (vec *T) Clamped01() T {
-	result := *vec
+func (vec T) Clamped01() T {
+	result := vec
 	result.Clamp01()
 	return result
 }
@@ -417,4 +419,9 @@ func PointSegmentVerticalPoint(p1 *T, x1 *T, x2 *T) *T {
 	v1 := v.Scaled(b)
 	res := Add(x1, &v1)
 	return &res
+}
+
+// AlmostEqual returns true if vec and o are equal allowing for numerical error tol.
+func (vec T) AlmostEqual(o T, tol float64) bool {
+	return f64.AlmostEqual64(vec[0], o[0], tol) && f64.AlmostEqual64(vec[1], o[1], tol) && f64.AlmostEqual64(vec[2], o[2], tol)
 }

@@ -27,16 +27,16 @@ func FromSlice(s []float32) *Box {
 }
 
 // String formats Box as string. See also ParseBox().
-func (box *Box) String() string {
+func (box Box) String() string {
 	return box.Min.String() + " " + box.Max.String()
 }
 
 // Slice returns the elements of the vector as slice.
-func (box *Box) Slice() []float32 {
+func (box Box) Slice() []float32 {
 	return box.Array()[:]
 }
 
-func (box *Box) Array() *[6]float32 {
+func (box Box) Array() *[6]float32 {
 	return &[...]float32{
 		box.Min[0], box.Min[1], box.Min[2],
 		box.Max[0], box.Max[1], box.Max[2],
@@ -44,32 +44,32 @@ func (box *Box) Array() *[6]float32 {
 }
 
 // ContainsPoint returns if a point is contained within the box.
-func (box *Box) ContainsPoint(p *T) bool {
+func (box Box) ContainsPoint(p *T) bool {
 	return p[0] >= box.Min[0] && p[0] <= box.Max[0] &&
 		p[1] >= box.Min[1] && p[1] <= box.Max[1] &&
 		p[2] >= box.Min[2] && p[2] <= box.Max[2]
 }
 
-func (box *Box) Contains(t *Box) bool {
+func (box Box) Contains(t *Box) bool {
 	return t.Min[0] >= box.Min[0] && t.Max[0] <= box.Max[0] &&
 		t.Min[1] >= box.Min[1] && t.Max[1] <= box.Max[1] &&
 		t.Min[2] >= box.Min[2] && t.Max[2] <= box.Max[2]
 }
 
-func (box *Box) Center() T {
+func (box Box) Center() T {
 	c := Add(&box.Min, &box.Max)
 	c.Scale(0.5)
 	return c
 }
 
-func (box *Box) Diagonal() T {
+func (box Box) Diagonal() T {
 	return Sub(&box.Max, &box.Min)
 }
 
 // Intersects returns true if this and the given box intersect.
 // For an explanation of the algorithm, see
 // http://rbrundritt.wordpress.com/2009/10/03/determining-if-two-bounding-boxes-overlap/
-func (box *Box) Intersects(other *Box) bool {
+func (box Box) Intersects(other *Box) bool {
 	d1 := box.Diagonal()
 	d2 := other.Diagonal()
 	sizes := Add(&d1, &d2)

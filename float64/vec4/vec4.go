@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math"
 
+	f64 "github.com/flywave/go3d/float64/math"
+
 	"github.com/flywave/go3d/float64/generic"
 	"github.com/flywave/go3d/float64/vec3"
 )
@@ -642,7 +644,7 @@ func (vec *T) Shuffle(mask ShuffleMask) *T {
 //
 //	vec := vec4.T{1, 2, 3, 4}
 //	check := vec.Shuffled(vec4.WZYX) == T{4, 3, 2, 1} // true
-func (vec *T) Shuffled(mask ShuffleMask) (result T) {
+func (vec T) Shuffled(mask ShuffleMask) (result T) {
 	result[0] = vec[mask&3]
 	result[1] = vec[(mask>>2)&3]
 	result[2] = vec[(mask>>4)&3]
@@ -652,14 +654,14 @@ func (vec *T) Shuffled(mask ShuffleMask) (result T) {
 
 // Length returns the length of the vector.
 // See also LengthSqr and Normalize.
-func (vec *T) Length() float64 {
+func (vec T) Length() float64 {
 	v3 := vec.Vec3DividedByW()
 	return v3.Length()
 }
 
 // LengthSqr returns the squared length of the vector.
 // See also Length and Normalize.
-func (vec *T) LengthSqr() float64 {
+func (vec T) LengthSqr() float64 {
 	v3 := vec.Vec3DividedByW()
 	return v3.LengthSqr()
 }
@@ -673,7 +675,7 @@ func (vec *T) Scale(f float64) *T {
 }
 
 // Scaled returns a copy of vec with the first 3 elements multiplies by f.
-func (vec *T) Scaled(f float64) T {
+func (vec T) Scaled(f float64) T {
 	return T{vec[0] * f, vec[1] * f, vec[2] * f, vec[3]}
 }
 
@@ -685,7 +687,7 @@ func (vec *T) Invert() {
 }
 
 // Inverted returns an inverted copy of the vector.
-func (vec *T) Inverted() T {
+func (vec T) Inverted() T {
 	return T{-vec[0], -vec[1], -vec[2], vec[3]}
 }
 
@@ -701,14 +703,14 @@ func (vec *T) Normalize() *T {
 }
 
 // Normalized returns a unit length normalized copy of the vector.
-func (vec *T) Normalized() T {
-	v := *vec
+func (vec T) Normalized() T {
+	v := vec
 	v.Normalize()
 	return v
 }
 
 // Normal returns an orthogonal vector.
-func (vec *T) Normal() T {
+func (vec T) Normal() T {
 	v3 := vec.Vec3()
 	n3 := v3.Normal()
 	return T{n3[0], n3[1], n3[2], 1}
@@ -725,20 +727,20 @@ func (vec *T) DivideByW() *T {
 }
 
 // DividedByW returns a copy of the vector with the first three components (XYZ) divided by the last one (W).
-func (vec *T) DividedByW() T {
+func (vec T) DividedByW() T {
 	oow := 1 / vec[3]
 	return T{vec[0] * oow, vec[1] * oow, vec[2] * oow, 1}
 }
 
 // Vec3DividedByW returns a vec3.T version of the vector by dividing the first three vector components (XYZ) by the last one (W).
-func (vec *T) Vec3DividedByW() vec3.T {
+func (vec T) Vec3DividedByW() vec3.T {
 	oow := 1 / vec[3]
 	return vec3.T{vec[0] * oow, vec[1] * oow, vec[2] * oow}
 }
 
 // Vec3 returns a vec3.T with the first three components of the vector.
 // See also Vec3DividedByW
-func (vec *T) Vec3() vec3.T {
+func (vec T) Vec3() vec3.T {
 	return vec3.T{vec[0], vec[1], vec[2]}
 }
 
@@ -783,7 +785,7 @@ func (vec *T) Sub(v *T) *T {
 	return vec
 }
 
-func (v *T) Lerp(other *T, t float64) T {
+func (v T) Lerp(other *T, t float64) T {
 	return T{
 		v[0] + t*(other[0]-v[0]),
 		v[1] + t*(other[1]-v[1]),
@@ -870,8 +872,8 @@ func (vec *T) Clamp(min, max *T) *T {
 }
 
 // Clamped returns a copy of the vector with the components clamped to be in the range of min to max.
-func (vec *T) Clamped(min, max *T) T {
-	result := *vec
+func (vec T) Clamped(min, max *T) T {
+	result := vec
 	result.Clamp(min, max)
 	return result
 }
@@ -882,8 +884,8 @@ func (vec *T) Clamp01() *T {
 }
 
 // Clamped01 returns a copy of the vector with the components clamped to be in the range of 0 to 1.
-func (vec *T) Clamped01() T {
-	result := *vec
+func (vec T) Clamped01() T {
+	result := vec
 	result.Clamp01()
 	return result
 }
@@ -916,4 +918,9 @@ func (vec *T) SetMax(c T) {
 	if c[3] > vec[3] {
 		vec[3] = c[3]
 	}
+}
+
+// AlmostEqual returns true if vec and o are equal allowing for numerical error tol.
+func (vec T) AlmostEqual(o T, tol float64) bool {
+	return f64.AlmostEqual64(vec[0], o[0], tol) && f64.AlmostEqual64(vec[1], o[1], tol) && f64.AlmostEqual64(vec[2], o[2], tol) && f64.AlmostEqual64(vec[3], o[3], tol)
 }
